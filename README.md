@@ -1,2 +1,2 @@
 # Careers-Website
-Research Positions at NCSU
+Student Positions at NCSU
