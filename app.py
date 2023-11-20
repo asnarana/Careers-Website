@@ -60,9 +60,7 @@ def helloWorld():
   return render_template('home.html', jobs=JOBS)
 
 
-app.route("/api/jobs")
-
-
+@app.route("/api/jobs")
 def listjobs():
   return jsonify(JOBS)
 
