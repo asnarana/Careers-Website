@@ -18,3 +18,5 @@ def load_positions_from_db():
         for row in result.fetchall()
     ]
     return ncsupositions
+
+
