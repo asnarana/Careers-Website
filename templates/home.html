@@ -18,18 +18,22 @@
     </style>
   </head>
   <body>
-    <div class ="container">
-      <h1 class ="text-center mt-2 mb-2">Student Careers at NCSU<h1>
-        <img class = "img-fluid" id = "banner" src = "https://careers-website.amrishnaranappa.repl.co/static/ncsu.jpg" width = "400" height 
+    {% include 'nav.html' %}
+    <img class = "img-fluid" id = "banner" src = "https://careers-website.amrishnaranappa.repl.co/static/ncsu.jpg" width = "400" height 
        = "350" > 
-          <h2 class="text-center mt-2 mb-2"> About NCSU's Departments</h2>
-          <p class= "lead"> Campus Enterprises at NC State University is a dynamic umbrella organization encompassing several vital departments that collectively contribute to the enrichment of campus life. At the helm is the Campus Enterprises Administration, which strategically plans and coordinates the diverse operations within the enterprise. NC State Dining is committed to providing a multifaceted dining experience that emphasizes sustainability, nutrition, and culinary innovation. Meanwhile, NC State Student Centers stands as the nexus of student life, managing spaces and facilities that facilitate community engagement, student organizations, and a myriad of social activities.
-
-            Ensuring smooth transportation and logistics on campus, NC State Wolf Xpress plays a pivotal role, overseeing the Wolfline bus system and facilitating efficient package delivery services. Wolfpack Outfitters serves as the university's premier retail destination, offering a wide array of merchandise, apparel, and accessories that proudly showcase NC State pride. Complementing this, the WolfPack Outfitters/NC State Bookstore is the central hub for textbooks and course materials, providing students with academic resources while also contributing to the cultivation of campus identity and spirit.
-
-            Collectively, these departments under Campus Enterprises synergistically work towards creating a vibrant, inclusive, and spirited environment that enhances the overall collegiate experience at NC State University. Whether through facilitating essential services, promoting campus engagement, or fostering a sense of community, Campus Enterprises plays a crucial role in shaping the dynamic tapestry of university life.
-          </p>
+    <div class ="container">
+      <h1 class ="text-center mt-2 mb-4">Student Careers at NCSU<h1>
        
+          <!-- <h2 class="text-center mt-2 mb-2"> About NCSU's Departments</h2> -->
+        <div class = "row" style = "margin-bottom:20px">
+          <div class = "col-md-6">
+          <p class= "lead"> Campus Enterprises at NC State University oversees key departments that enhance campus life. The Campus Enterprises Administration strategically coordinates various operations. NC State Dining focuses on a sustainable, nutritious, and innovative dining experience. NC State Student Centers manages spaces for community engagement and social activities. NC State Wolf Xpress ensures smooth campus transportation and logistics, overseeing the Wolfline bus system and package delivery services. Wolfpack Outfitters is the premier retail destination, offering a variety of merchandise showcasing NC State pride. The WolfPack Outfitters/NC State Bookstore is a hub for textbooks, academic resources, and campus identity. Together, these departments create a vibrant, inclusive environment, shaping the collegiate experience at NC State University.
+          </p>
+          </div>
+          <div class = "d-none d-md-block col-md-6">
+            <img src = "/static/team.jpg" style = "height:350px; border-radius:4px;" >
+           </div>
+          </div>
           <h2 class ="text-center mt-2 mb-2"> Student Jobs available by Department</h2>
         <div>
           {% for job in jobs %}
@@ -37,7 +41,8 @@
           {% endfor %}
         </div>
         <div class= "text-center">
-          <button class="btn btn-primary btn-lg"> Contact </button>
+          <a class="btn btn-primary btn-lg" href= "mailto:campus-enterprises@ncsu.edu?subject=Application for job"> Contact </a>
+          
         </div>
           
     </div>
