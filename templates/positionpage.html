@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head> 
+    <title> {{job.title}} - NCSU Student Careers </title>
+    {% include 'bootstrap.html' %}
+
+  </head>
+  
+  <body>
+    {% include 'banner.html' %}
+    {% include 'nav.html' %}
+    <div class="container">
+      <h1 class="text-center mt-2 mb-4">Student Careers at NCSU<h1>
+    <h3> {{job.title}}</h3>
+    <p class = "lead"> {{job.location}}</p>
+    <h3> Department</h3>
+    <p> {{job.department}}</p>
+    <h3> Responsibilites</h3>
+    <ul>
+      {% for line in job.responsibilities.split(".") %} 
+      <li>{{line}}</li>
+      {% endfor %}
+    </ul>
+    <h3> Requirements</h3>
+      <ul>
+        {% for line in job.requirements.split(".") %}
+            <li> {{line}}</li>
+        {% endfor %}
+      </ul>
+    <h4> Salary</h4>
+      <p> {{job.currency}}{{job.salary}}/hr</p>
+        {% include 'application.html' %}
+   
+    </div>
+    <div class="text-center">
+      <a class="btn btn-primary btn-lg" href="mailto:campus-enterprises@ncsu.edu?subject=Application for job">
+        Contact </a>
+
+    </div>
+  </body>
+</html>
