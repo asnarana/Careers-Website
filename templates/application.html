@@ -1,32 +1,81 @@
-<h4> Application Form</h4>
-<form action = "/position/{{job['id']}}/apply"  method = "post">
-  <div class = "mb-2">
-    <label> Enter Full Name:  </label><br>
-    <input type = "text" name = "fullname" placeholder = "Amrish Naranappa">
-  </div>
-  <div class = "mb-2">
-    <label> Enter Email:  </label><br>
-    <input type = "text" name = "email" placeholder = "amrish.naranappa@gmail.com">
-  </div>
-  <div class = "mb-2">
-    <label> Enter Linkedin:  </label><br>
-    <input type = "text" name = "link" placeholder = "https://www.linkedin.com/in/amrishn">
-  </div>
-  <div class = "mb-2"> 
-    <label> Enter Education:  </label><br>
-    <textarea name = "education" placeholder = "North Carolina State "></textarea>
-  </div>
-  <div class = "mb-2"> 
-    <label> Enter Work Experience:  </label><br>
-    <textarea name = "work" placeholder = "Part of Bionics Club"></textarea>
-
-  </div>
-  <div class = "mb-2">
-    <label> Resume Link:  </label><br>
-    <input type = "text" name = "resume link">
-  </div>
-  <br>
-  <input type = "submit">
- 
-  
-</form>
+<!-- templates/positionpage.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apply for {{ job.title }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h4>Application Form for {{ job.title }}</h4>
+        
+        <!-- Display Messages Passed from the Server -->
+        {% if message %}
+            <div class="alert alert-{{ message.category }} alert-dismissible fade show" role="alert">
+                {{ message.text }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endif %}
+        
+        <!-- Application Form -->
+        <form action="/position/{{ job.id }}/apply" method="post">
+            <!-- Honeypot Field (Hidden from Users) -->
+            <div style="display:none;">
+                <label>Leave this field empty</label>
+                <input type="text" name="honeypot" value="">
+            </div>
+            
+            <!-- Full Name Field -->
+            <div class="mb-2">
+                <label for="fullname">Enter Full Name:</label><br>
+                <input type="text" id="fullname" name="fullname" class="form-control" placeholder="Amrish Naranappa" required>
+            </div>
+            
+            <!-- Email Field -->
+            <div class="mb-2">
+                <label for="email">Enter Email:</label><br>
+                <input type="email" id="email" name="email" class="form-control" placeholder="amrish.naranappa@gmail.com" required>
+            </div>
+            
+            <!-- LinkedIn Field -->
+            <div class="mb-2">
+                <label for="link">Enter LinkedIn:</label><br>
+                <input type="url" id="link" name="link" class="form-control" placeholder="https://www.linkedin.com/in/amrishn">
+            </div>
+            
+            <!-- Education Field -->
+            <div class="mb-2"> 
+                <label for="education">Enter Education:</label><br>
+                <textarea id="education" name="education" class="form-control" placeholder="North Carolina State" required></textarea>
+            </div>
+            
+            <!-- Work Experience Field -->
+            <div class="mb-2"> 
+                <label for="work">Enter Work Experience:</label><br>
+                <textarea id="work" name="work" class="form-control" placeholder="Part of Bionics Club" required></textarea>
+            </div>
+            
+            <!-- Resume Link Field -->
+            <div class="mb-2">
+                <label for="resume_link">Resume Link:</label><br>
+                <input type="url" id="resume_link" name="resume_link" class="form-control" placeholder="https://yourresume.com" required>
+            </div>
+            
+            <!-- Google reCAPTCHA Widget -->
+            <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+            <br>
+            
+            <!-- Submit Button -->
+            <input type="submit" class="btn btn-primary" value="Submit Application">
+        </form>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</body>
+</html>

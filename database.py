@@ -20,7 +20,7 @@ def get_sql_session():
 def load_positions_from_db():
   session = get_sql_session()
   try:
-    #text to prevent sql injection - safely creates a textual sql query 
+    #text to prevent sql injection - safely creates a textual sql query
     result = session.execute(text("select * from positions"))
     positions = [dict(zip(result.keys(), row)) for row in result.fetchall()]
     return positions

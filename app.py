@@ -1,89 +1,196 @@
-from flask import Flask, render_template, jsonify, request, session, redirect, url_for
-from database import load_positions_from_db, load_position_from_db
-from sqlalchemy import create_engine
-from models import Application, User
-from database import get_sql_session
-from werkzeug.security import generate_password_hash, check_password_hash
+import os
+import requests  # For sending HTTP requests to verify reCAPTCHA
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+from sqlalchemy import text
+from sqlalchemy.orm import sessionmaker
 
-from auth import auth as auth_blueprint
+from database import load_positions_from_db, load_position_from_db, get_sql_session
 
 app = Flask(__name__)
-app.register_blueprint(auth_blueprint, url_prefix='/auth')
+# Correct: key_func is set only once during initialization
+
+site_key = os.environ['SITE']
+secret_key = os.environ['SECRET']
+RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"  # Google reCAPTCHA verification URL
 
 
 @app.route("/")
-def helloWorld():
+def home():
+  """
+    Home route that displays a list of job positions.
+    """
   positions = load_positions_from_db()
   return render_template('home.html', jobs=positions)
 
 
-# creating route to display position descriptions when apply button is pressed
 @app.route("/position/<id>")
-def show_ncsu_position(id):
+def show_position(id):
+  """
+    Route to display the application form for a specific job position.
+    
+    Parameters:
+    - id (int): The ID of the job position.
+    """
   position = load_position_from_db(id)
   if not position:
     return "Position Not Found", 404
-  return render_template('positionpage.html', job=position)
+  # Pass the job details and reCAPTCHA Site Key to the template
+  return render_template('positionpage.html',
+                         job=position,
+                         recaptcha_site_key=site_key,
+                         message=None)
 
-# rotue for when user has pressed submit button 
+
 @app.route("/position/<id>/apply", methods=['POST'])
 def apply_to_position(id):
-  data = request.form
-  return jsonify(data)
+  """
+    Route to handle form submissions for job applications.
+    
+    Parameters:
+    - id (int): The ID of the job position.
+    
+    Steps:
+    1. Check honeypot field to detect bots.
+    2. Verify reCAPTCHA response with Google.
+    3. Validate form data.
+    4. Save application to the database.
+    5. Render the form template with success or error messages.
+    """
+  # Honeypot Field Check
+  honeypot = request.form.get('honeypot')
+  if honeypot:
+    # If honeypot field is filled, it's likely a bot submission
+    message = {
+        'text': 'Spam detected. Your application could not be processed.',
+        'category':
+        'danger'  # Categories can be 'success', 'warning', 'danger', etc.
+    }
+    # Re-render the application form with the error message
+    position = load_position_from_db(id)
+    return render_template('positionpage.html',
+                           job=position,
+                           recaptcha_site_key=site_key,
+                           message=message)
 
+  # Get reCAPTCHA response from the form
+  recaptcha_response = request.form.get('g-recaptcha-response')
 
-@app.route("/dashboard")
-def dashboard():
-  sql_session = get_sql_session(
-  )  # Define sql_session within the function scope
-  if 'user_id' not in session:
-    return redirect(url_for('login'))  # Redirect to login if not logged in
-  user_applications = sql_session.query(Application).filter_by(
-      user_id=session['user_id']).all()
-  return render_template('dashboard.html', applications=user_applications)
+  if not recaptcha_response:
+    # If reCAPTCHA response is missing
+    message = {
+        'text': 'Please complete the reCAPTCHA challenge.',
+        'category': 'warning'
+    }
+    position = load_position_from_db(id)
+    return render_template('positionpage.html',
+                           job=position,
+                           recaptcha_site_key=site_key,
+                           message=message)
 
+  # Prepare data for reCAPTCHA verification
+  data = {
+      'secret': secret_key,  # Your Secret Key
+      'response': recaptcha_response,  # Response token from the form
+      'remoteip': request.remote_addr  # User's IP address (optional)
+  }
 
-@app.route("/login", methods=['GET',
-                              'POST'])  # Placeholder for login functionality
-def login():
-  sql_session = get_sql_session(
-  )  # Define sql_session within the login function scope
-  if request.method == 'POST':
-    username = request.form['username']
-    password = request.form['password']
-    user = sql_session.query(User).filter_by(username=username).first()
-    if user is not None and check_password_hash(str(user.password), password):
-      # Use check_password_hash function to compare hashed password
-      session['user_id'] = user.id
-      return redirect(url_for('dashboard'))
-    return 'Login Failed'
-  return render_template('login.html')
+  # Send POST request to Google's reCAPTCHA verification API
+  try:
+    verification_response = requests.post(RECAPTCHA_VERIFY_URL, data=data)
+    verification_result = verification_response.json(
+    )  # Parse the JSON response
+  except requests.exceptions.RequestException as e:
+    # Handle any network-related errors
+    message = {
+        'text': 'Error verifying reCAPTCHA. Please try again.',
+        'category': 'danger'
+    }
+    position = load_position_from_db(id)
+    return render_template('positionpage.html',
+                           job=position,
+                           recaptcha_site_key=site_key,
+                           message=message)
 
+  if not verification_result.get('success'):
+    # If reCAPTCHA verification failed
+    message = {
+        'text': 'reCAPTCHA verification failed. Please try again.',
+        'category': 'danger'
+    }
+    position = load_position_from_db(id)
+    return render_template('positionpage.html',
+                           job=position,
+                           recaptcha_site_key=site_key,
+                           message=message)
 
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-  if request.method == 'POST':
-    username = request.form['username']
-    password = request.form['password']
+  # Extract form data
+  fullname = request.form.get('fullname')
+  email = request.form.get('email')
+  link = request.form.get('link')
+  education = request.form.get('education')
+  work = request.form.get('work')
+  resume_link = request.form.get('resume_link')
 
-    sql_session = get_sql_session()
-    # Check if the user already exists
-    existing_user = sql_session.query(User).filter_by(
-        username=username).first()
-    if existing_user:
-      return 'User already exists', 400  # Or handle this with a flash message and redirect
+  # Basic validation to ensure required fields are filled
+  if not all([fullname, email, education, work, resume_link]):
+    message = {
+        'text': 'Please fill out all required fields.',
+        'category': 'warning'
+    }
+    position = load_position_from_db(id)
+    return render_template('positionpage.html',
+                           job=position,
+                           recaptcha_site_key=site_key,
+                           message=message)
 
-    # Create a new user and hash the password
-    hashed_password = generate_password_hash(password, method='sha256')
-    new_user = User(username=username, password=hashed_password)
-    sql_session.add(new_user)
+  # Save the application to the database using raw SQL
+  sql_session = get_sql_session()
+  try:
+    # Prepare the SQL statement with parameterized queries to prevent SQL injection
+    insert_query = text("""
+            INSERT INTO applications (position_id, fullname, email, linkedin, education, work_experience, resume_link)
+            VALUES (:position_id, :fullname, :email, :linkedin, :education, :work_experience, :resume_link)
+        """)
+    sql_session.execute(
+        insert_query, {
+            'position_id': id,
+            'fullname': fullname,
+            'email': email,
+            'linkedin': link,
+            'education': education,
+            'work_experience': work,
+            'resume_link': resume_link
+        })
     sql_session.commit()
-    return redirect(
-        url_for('login'))  # Redirect to login after successful registration
+  except Exception as e:
+    # Handle any database-related errors
+    print(f"Database Error: {e}")  # Log the error for debugging
+    message = {
+        'text':
+        'An error occurred while submitting your application. Please try again.',
+        'category': 'danger'
+    }
+    sql_session.rollback()
+    position = load_position_from_db(id)
+    return render_template('positionpage.html',
+                           job=position,
+                           recaptcha_site_key=site_key,
+                           message=message)
+  finally:
+    sql_session.close()
 
-  # If it's a GET request, just display the signup form
-  return render_template('signup.html')
+  # If everything is successful, render the form with a success message
+  message = {
+      'text': 'Your application has been submitted successfully!',
+      'category': 'success'
+  }
+  position = load_position_from_db(id)
+  return render_template('positionpage.html',
+                         job=position,
+                         recaptcha_site_key=site_key,
+                         message=message)
 
 
 if __name__ == "__main__":
+  # Run the Flask application
   app.run(host='0.0.0.0', debug=True)
