@@ -1,39 +1,45 @@
 from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
 import os
 # setting up connection to mySQL database this database is stored on
 # mySQLalchemy server.
-db_connectionstring = os.environ['SECRET_KEY']
+db_connectionstring = os.environ['SECRET_KEY_NCSU']
 engine = create_engine(db_connectionstring,
                        connect_args={"ssl": {
                            "ssl_ca": "/etc/ssl/cert.pem",
                        }})
 
+Session = sessionmaker(bind=engine)
+
+
+def get_sql_session():
+
+  return Session()
+
 
 def load_positions_from_db():
-  with engine.connect() as conn:
-    result = conn.execute(text("select * from positions"))
+  session = get_sql_session()
+  try:
+    #text to prevent sql injection - safely creates a textual sql query 
+    result = session.execute(text("select * from positions"))
+    positions = [dict(zip(result.keys(), row)) for row in result.fetchall()]
+    return positions
+  except Exception as e:
+    print(f"Error accessing database: {e}")
+    return []
+  finally:
+    session.close()
 
-    ncsupositions = [
-        dict(zip(result.keys(), row, strict=False))
-        for row in result.fetchall()
-    ]
-    return ncsupositions
 
 def load_position_from_db(id):
-  with engine.connect() as conn:
-    result = conn.execute(
-      text("SELECT * FROM positions WHERE id = :val"),
-      {"val": id}
-    )
-    rows = result.fetchall()
-    if len(rows) == 0:
-      return None
-    else :
-      return dict(zip(result.keys(),rows[0]))
-      
-# database: ncsucareers
-# username: 0zdzxut9ty5cuj63bvqj
-# host: aws.connect.psdb.cloud
-# password: pscale_pw_EEUfHsKrWCjdrZWpClcjk0ITIjDqAgEYPPC9GhBB0pq
-
-
+  session = get_sql_session()
+  try:
+    result = session.execute(text("SELECT * FROM positions WHERE id = :val"),
+                             {'val': id})
+    row = result.fetchone()
+    return dict(zip(result.keys(), row)) if row else None
+  except Exception as e:
+    print(f"Error accessing database: {e}")
+    return None
+  finally:
+    session.close()

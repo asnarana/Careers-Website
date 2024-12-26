@@ -1,5 +1,5 @@
 <h4> Application Form</h4>
-<form action = "/position/{{job['id']}}/apply" >
+<form action = "/position/{{job['id']}}/apply"  method = "post">
   <div class = "mb-2">
     <label> Enter Full Name:  </label><br>
     <input type = "text" name = "fullname" placeholder = "Amrish Naranappa">
@@ -14,11 +14,12 @@
   </div>
   <div class = "mb-2"> 
     <label> Enter Education:  </label><br>
-    <input type = "text" name = "education">
+    <textarea name = "education" placeholder = "North Carolina State "></textarea>
   </div>
   <div class = "mb-2"> 
     <label> Enter Work Experience:  </label><br>
-    <input type = "text" name = "workexperience">
+    <textarea name = "work" placeholder = "Part of Bionics Club"></textarea>
+
   </div>
   <div class = "mb-2">
     <label> Resume Link:  </label><br>
