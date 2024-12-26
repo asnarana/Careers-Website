@@ -34,7 +34,6 @@ def show_position(id):
   position = load_position_from_db(id)
   if not position:
     return "Position Not Found", 404
-  # Pass the job details and reCAPTCHA Site Key to the template
   return render_template('positionpage.html',
                          job=position,
                          recaptcha_site_key=site_key,
@@ -43,40 +42,23 @@ def show_position(id):
 
 @app.route("/position/<id>/apply", methods=['POST'])
 def apply_to_position(id):
-  """
-    Route to handle form submissions for job applications.
-    
-    Parameters:
-    - id (int): The ID of the job position.
-    
-    Steps:
-    1. Check honeypot field to detect bots.
-    2. Verify reCAPTCHA response with Google.
-    3. Validate form data.
-    4. Save application to the database.
-    5. Render the form template with success or error messages.
-    """
-  # Honeypot Field Check
+
   honeypot = request.form.get('honeypot')
   if honeypot:
-    # If honeypot field is filled, it's likely a bot submission
     message = {
         'text': 'Spam detected. Your application could not be processed.',
         'category':
         'danger'  # Categories can be 'success', 'warning', 'danger', etc.
     }
-    # Re-render the application form with the error message
     position = load_position_from_db(id)
     return render_template('positionpage.html',
                            job=position,
                            recaptcha_site_key=site_key,
                            message=message)
 
-  # Get reCAPTCHA response from the form
   recaptcha_response = request.form.get('g-recaptcha-response')
 
   if not recaptcha_response:
-    # If reCAPTCHA response is missing
     message = {
         'text': 'Please complete the reCAPTCHA challenge.',
         'category': 'warning'
@@ -87,14 +69,12 @@ def apply_to_position(id):
                            recaptcha_site_key=site_key,
                            message=message)
 
-  # Prepare data for reCAPTCHA verification
   data = {
-      'secret': secret_key,  # Your Secret Key
-      'response': recaptcha_response,  # Response token from the form
-      'remoteip': request.remote_addr  # User's IP address (optional)
+      'secret': secret_key, 
+      'response': recaptcha_response,  
+      'remoteip': request.remote_addr  
   }
 
-  # Send POST request to Google's reCAPTCHA verification API
   try:
     verification_response = requests.post(RECAPTCHA_VERIFY_URL, data=data)
     verification_result = verification_response.json(
