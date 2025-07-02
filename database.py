@@ -1,8 +1,11 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 import os
+from dotenv import load_dotenv
+
 # setting up connection to mySQL database this database is stored on
 # mySQLalchemy server.
+load_dotenv()
 db_connectionstring = os.environ['SECRET_KEY_NCSU']
 engine = create_engine(db_connectionstring,
                        connect_args={"ssl": {

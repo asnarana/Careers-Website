@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 import os
 import requests  # For sending HTTP requests to verify reCAPTCHA
 from flask import Flask, render_template, request, redirect, url_for, jsonify
