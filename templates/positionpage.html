@@ -29,7 +29,19 @@
       </ul>
     <h4> Salary</h4>
       <p> {{job.currency}}{{job.salary}}/hr</p>
-        {% include 'application.html' %}
+      
+      <!-- Display Messages Passed from the Server -->
+      {% if message %}
+          <div class="alert alert-{{ message.category }} alert-dismissible fade show" role="alert">
+              {{ message.text }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+      {% endif %}
+      
+      <h4>Application Form for {{ job.title }}</h4>
+      {% include 'application.html' %}
    
     </div>
     <div class="text-center">

@@ -43,14 +43,24 @@ Example (Linux/macOS):
 ```sh
 export SITE=your_recaptcha_site_key
 export SECRET=your_recaptcha_secret_key
-export SECRET_KEY_NCSU="mysql+pymysql://user:password@host/dbname"
+export SECRET_KEY_NCSU="mysql+pymysql://<username>:<password>@<host>/<database>"
 ```
 On Windows (CMD):
 ```cmd
 set SITE=your_recaptcha_site_key
 set SECRET=your_recaptcha_secret_key
-set SECRET_KEY_NCSU="mysql+pymysql://user:password@host/dbname"
+set SECRET_KEY_NCSU="mysql+pymysql://<username>:<password>@<host>/<database>"
 ```
+
+**Note:**
+- Replace `<username>`, `<password>`, `<host>`, and `<database>` with your actual MySQL credentials and database information.
+- The password is the one you set for your MySQL user. It is not provided in this codebase.
+
+#### How to find or set your MySQL password
+- If you installed MySQL yourself, use the password you created for your user (often `root`).
+- If you are using a managed/cloud MySQL, check your provider's dashboard for credentials.
+- If someone else set up the database, ask them for the credentials.
+- If you forgot your password, you may need to reset it using MySQL tools. [See MySQL documentation for password reset instructions.](https://dev.mysql.com/doc/refman/8.0/en/resetting-permissions.html)
 
 ### 4. Database setup
 - Ensure your MySQL database is running and accessible.

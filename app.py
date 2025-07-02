@@ -11,8 +11,18 @@ from database import load_positions_from_db, load_position_from_db, get_sql_sess
 app = Flask(__name__)
 # Correct: key_func is set only once during initialization
 
-site_key = os.environ['SITE']
-secret_key = os.environ['SECRET']
+# Add debugging for environment variables
+try:
+    site_key = os.environ['SITE']
+    secret_key = os.environ['SECRET']
+    print(f"reCAPTCHA Site Key loaded: {site_key[:10]}...")  # Show first 10 chars for debugging
+    print(f"reCAPTCHA Secret Key loaded: {secret_key[:10]}...")  # Show first 10 chars for debugging
+except KeyError as e:
+    print(f"ERROR: Missing environment variable: {e}")
+    print("Make sure your .env file contains SITE and SECRET variables")
+    site_key = "missing_site_key"
+    secret_key = "missing_secret_key"
+
 RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"  # Google reCAPTCHA verification URL
 
 
@@ -44,13 +54,11 @@ def show_position(id):
 
 @app.route("/position/<id>/apply", methods=['POST'])
 def apply_to_position(id):
-
   honeypot = request.form.get('honeypot')
   if honeypot:
     message = {
         'text': 'Spam detected. Your application could not be processed.',
-        'category':
-        'danger'  # Categories can be 'success', 'warning', 'danger', etc.
+        'category': 'danger'
     }
     position = load_position_from_db(id)
     return render_template('positionpage.html',
@@ -79,10 +87,10 @@ def apply_to_position(id):
 
   try:
     verification_response = requests.post(RECAPTCHA_VERIFY_URL, data=data)
-    verification_result = verification_response.json(
-    )  # Parse the JSON response
+    verification_result = verification_response.json()
+    print(f"reCAPTCHA verification result: {verification_result}")  # Debug output
   except requests.exceptions.RequestException as e:
-    # Handle any network-related errors
+    print(f"reCAPTCHA request error: {e}")  # Debug output
     message = {
         'text': 'Error verifying reCAPTCHA. Please try again.',
         'category': 'danger'
@@ -94,7 +102,7 @@ def apply_to_position(id):
                            message=message)
 
   if not verification_result.get('success'):
-    # If reCAPTCHA verification failed
+    print(f"reCAPTCHA verification failed: {verification_result}")  # Debug output
     message = {
         'text': 'reCAPTCHA verification failed. Please try again.',
         'category': 'danger'
