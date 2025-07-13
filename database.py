@@ -19,7 +19,7 @@ def get_sql_session():
 
   return Session()
 
-
+# method using sqlalchemy as the ORM  to load positions from the database 
 def load_positions_from_db():
   session = get_sql_session()
   try:
@@ -33,7 +33,7 @@ def load_positions_from_db():
   finally:
     session.close()
 
-
+# loads single position from database
 def load_position_from_db(id):
   session = get_sql_session()
   try:

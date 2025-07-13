@@ -4,10 +4,21 @@
     <title>Login</title>
 </head>
 <body>
-    <form action="{{ url_for('auth.login') }}" method="post">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
+    <h1>Login</h1>
+    {% if error %}
+        <div style="color: red;">{{ error }}</div>
+    {% endif %}
+    {% if success %}
+        <div style="color: green;">{{ success }}</div>
+    {% endif %}
+    <form action="{{ url_for('login') }}" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+        <label><input type="checkbox" name="is_admin"> Login as admin</label><br>
         <button type="submit">Login</button>
     </form>
+    <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a></p>
 </body>
 </html>

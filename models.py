@@ -5,7 +5,7 @@ from datetime import datetime
 
 Base = declarative_base()
 
-
+# this class defines the models for user and applications
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>Application ID</th>
+                <th>Username</th>
+                <th>Position</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>LinkedIn</th>
+                <th>Education</th>
+                <th>Work Experience</th>
+                <th>Resume Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ app.id }}</td>
+                <td>{{ app.username or 'N/A' }}</td>
+                <td>{{ positions[app.position_id] }}</td>
+                <td>{{ app.fullname }}</td>
+                <td>{{ app.email }}</td>
+                <td>{{ app.linkedin }}</td>
+                <td>{{ app.education }}</td>
+                <td>{{ app.work_experience }}</td>
+                <td><a href="{{ app.resume_link }}" target="_blank">Resume</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html> 

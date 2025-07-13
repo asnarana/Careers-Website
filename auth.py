@@ -14,7 +14,7 @@ engine = create_engine(db_connectionstring,
 
 Session = sessionmaker(bind=engine)
 
-
+# signup route for new users. adds this user to db and redirects to login page
 @auth.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -41,7 +41,8 @@ def signup():
         return redirect(url_for('auth.login'))
     return render_template('signup.html')
 
-
+# login route for existing users. checks if user exists and redirects to dashboard
+# if admin, redirects to admin dashboard, else if user, redirects to home page where user can apply to positions 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':

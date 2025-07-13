@@ -5,6 +5,12 @@
 </head>
 <body>
     <h1>Signup</h1>
+    {% if error %}
+        <div style="color: red;">{{ error }}</div>
+    {% endif %}
+    {% if success %}
+        <div style="color: green;">{{ success }}</div>
+    {% endif %}
     <form action="{{ url_for('signup') }}" method="post">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required><br>
@@ -12,5 +18,6 @@
         <input type="password" id="password" name="password" required><br>
         <button type="submit">Sign Up</button>
     </form>
+    <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
 </body>
 </html>

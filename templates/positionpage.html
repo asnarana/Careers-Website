@@ -10,7 +10,8 @@
     {% include 'banner.html' %}
     {% include 'nav.html' %}
     <div class="container">
-      <h1 class="text-center mt-2 mb-4">Student Careers at NCSU<h1>
+        <a href="{{ url_for('home') }}" style="margin-top: 1em; display: inline-block;">&larr; Go back to Positions</a>
+        <h1 class="text-center mt-2 mb-4">Student Careers at NCSU</h1>
     <h3> {{job.title}}</h3>
     <p class = "lead"> {{job.location}}</p>
     <h3> Department</h3>
